@@ -1,0 +1,30 @@
+{
+	"id": "nec-display",
+	"name": "nec-display",
+	"shortname": "nec-display",
+	"description": "Controls Sharp/NEC Displays.",
+	"version": "0.0.0",
+	"license": "MIT",
+	"repository": "git+https://github.com/bitfocus/companion-module-nec-display.git",
+	"bugs": "https://github.com/bitfocus/companion-module-nec-display/issues",
+	"maintainers": [
+		{
+			"name": "Joseph Adams",
+			"email": "josephdadams@gmail.com"
+		}
+	],
+	"legacyIds": [],
+	"runtime": {
+		"type": "node18",
+		"api": "nodejs-ipc",
+		"apiVersion": "0.0.0",
+		"entrypoint": "../index.js"
+	},
+	"manufacturer": "NEC",
+	"products": [
+		"Display"
+	],
+	"keywords": [
+		"monitor"
+	]
+}
