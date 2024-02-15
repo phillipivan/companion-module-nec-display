@@ -73,6 +73,24 @@ module.exports = {
 			},
 		}
 
+		feedbacks.audiomute = {
+			type: 'boolean',
+			name: 'Audio is Muted',
+			description: 'Change colors of the bank if the volume is muted',
+			defaultStyle: {
+				color: foregroundColor,
+				bgcolor: backgroundColorRed,
+			},
+			options: [],
+			callback: function (feedback) {
+				if (self.data.audiomute === true) {
+					return true
+				}
+
+				return false
+			},
+		}
+
 		self.setFeedbackDefinitions(feedbacks);
 	}
 }

@@ -29,14 +29,15 @@ class necDisplayInstance extends InstanceBase {
 		this.data = {
 			model: '',
 			serial: '',
-			power: false,
+			power: 'off',
 			input: 'HDMI1',
 			volume: 0,
+			audiomute: false
 		};
 	}
 
 	async destroy() {
-		this.clearTimer();
+		this.stopPolling();
 	}
 
 	async init(config) {

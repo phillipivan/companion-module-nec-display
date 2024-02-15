@@ -28,11 +28,8 @@ module.exports = {
 	
 			self.socket.on('data', function(buffer) {
 				let indata = buffer.toString();
-	
-				//update feedbacks and variables
-				console.log('got a response');
-				console.log(buffer);
-				self.processData(buffer);
+
+				self.processData(buffer)
 			});
 		}
 		catch(error) {
@@ -47,9 +44,7 @@ module.exports = {
 		self.stopPolling(); //clear any existing timer
 
 		if (self.config.enablePolling) {
-			self.timer = setInterval(function () {
-				self.getInformation();
-			}, self.config.rate);
+			self.timer = setInterval(self.getInformation, self.config.rate, self);
 		}
 	},
 
@@ -57,18 +52,19 @@ module.exports = {
 		let self = this;
 
 		if (self.timer) {
-			clearInterval(self.timer);
-			delete self.timer;
+			clearInterval(self.timer)
+			delete self.timer
 		}
 	},
 
-	getInformation: function () {
-		let self = this;
+	getInformation: function (scope) {
+		let self = scope ? scope : this
 
 		if (self.config.protocol == 'ascii') {
-			self.sendCommand('power ?');
-			self.sendCommand('input ?');
-			self.sendCommand('volume ?');
+			self.sendCommand('power ?')
+			self.sendCommand('input ?')
+			self.sendCommand('volume ?')
+			self.sendCommand('avmute audio ?')
 		}
 		else if (self.config.protocol == 'hex') {
 			self.sendCommand('\x01\x30\x41\x30\x41\x30\x36\x02\x30\x31\x44\x36\x03\x74\x0D'); //power
@@ -82,7 +78,7 @@ module.exports = {
 
 		let hex = command;
 
-		self.log('info', 'Sending command: ' + command);
+		if (self.config.verbose) self.log('info', 'Sending command: ' + command);
 		if (self.config.protocol == 'ascii') {
 			//convert to hexadecimal and send
 			hex = Buffer.from(command + '\r', 'ascii')
@@ -101,41 +97,37 @@ module.exports = {
 			//convert hex response to ascii
 			let response = data.toString('ascii');
 
-			//self.log('info', 'Received data: ' + response);
+			//self.log('info', 'Processing ASCII data: ' + response);
 
-			if (response.includes(' ')) {
-				//split the response into two parts, command and value
-				let res = response.split(' ');
-				let command = res[0].replace('>','');
-				let value = res[1].replace('\r','');
-				let cur = null;
-				let sel = null;
-				let selOptions = null;
+			let matches = response.match(/>([\w\s]+)\scur=(\w+)/)
+			if (matches == null) return
+			let command = matches[1]
+			let cur = matches[2]
 
-				//now split value into cur and sel options with comma
-				if (value.includes(',')){
-					valueArr = value.split(',');
-					cur = valueArr[0].replace('cur=','');
-					sel = valueArr[1].replace('sel=','');
-					if (sel.includes('|')) {
-						selOptions = sel.split('|');
-					}
-				}
+			//console.log('command', command, 'data', cur)
 
 				switch(command) {
 					case 'power':
 						self.data.power = cur;
+						self.checkFeedbacks('power');
 						break;
 					case 'input':
 						self.data.input = cur;
+						self.checkFeedbacks('input');
 						break;
 					case 'volume':
-						self.data.volume = cur;
+						self.data.volume = parseInt(cur);
+						
+						break;
+					case 'avmute audio':
+						if (cur === 'on') self.data.audiomute = true 
+						else self.data.audiomute = false
+						self.checkFeedbacks('audiomute');
 						break;
 					default:
 						break;
 				}
-			}
+			// }
 		}
 		else if (self.config.protocol == 'hex') {
 			//process hex responses here
@@ -180,14 +172,23 @@ module.exports = {
 				}
 
 			}
+			self.checkFeedbacks();
 		}
-
-		self.checkFeedbacks();
 		self.checkVariables();
+
 	},
 
-	setPower: function (power) {
+	setPower: function (inpower) {
 		let self = this;
+		let power = 'on'
+
+		if (inpower === 'toggle' && self.data.power === 'on') {
+			power = 'off'
+		} else if (inpower === 'toggle') {
+			power = 'on'
+		} else {
+			power = inpower
+		}
 
 		if (self.config.protocol == 'ascii') {
 			self.sendCommand('power ' + power);
@@ -248,8 +249,7 @@ module.exports = {
 
 		if (self.config.protocol == 'ascii') {
 			self.sendCommand('volume ' + volume);
-		}
-		else if (self.config.protocol == 'hex') {
+		} else if (self.config.protocol == 'hex') {
 			let hexStringStart = '\x01\x30\x41\x30\x45\x30\x41\x02';
 			let hexOpPageCode = '\x30\x30\x36\x32';
 
@@ -269,4 +269,34 @@ module.exports = {
 			self.sendCommand(hexTotal);
 		}
 	},
+
+	setAudioMute: function(mute) {
+		let self = this
+
+		if (self.data.audiomute !== true && self.data.audiomute !== false) {
+			self.data.audiomute = false
+		}
+
+		if (mute === 'toggle') {
+			if (self.data.audiomute) {
+				self.data.audiomute = false
+			} else {
+				self.data.audiomute = true
+			}
+		} else {
+			switch (mute) {
+				case 'on':
+					self.data.audiomute = true
+					break;
+				case 'off':
+					self.data.audiomute = false
+					break;
+			}
+		}
+
+		if (self.config.protocol == 'ascii') {
+			self.sendCommand(`avmute audio  ${self.data.audiomute ? 'on' : 'off'}`)
+		}
+
+	}
 }

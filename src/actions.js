@@ -14,6 +14,7 @@ module.exports = {
 					choices: [
 						{ id: 'on', label: 'On' },
 						{ id: 'off', label: 'Off' },
+						{ id: 'toggle', label: 'Toggle' },
 					]
 				}
 			],
@@ -65,6 +66,26 @@ module.exports = {
 			],
 			callback: async function (action) {
 				self.setVolume(action.options.volume);
+			}
+		}
+
+		actions.setAudioMute = {
+			name: 'Set Audio Mute',
+			options: [
+				{
+					type: 'dropdown',
+					label: 'Mute',
+					id: 'mute',
+					choices: [
+						{id: 'on', label: 'Mute'},
+						{id: 'off', label: 'Unmute'},
+						{id: 'toggle', label: 'Toggle'},
+					],
+					default: 'toggle'
+				}
+			],
+			callback: async function (action) {
+				self.setAudioMute(action.options.mute);
 			}
 		}
 
