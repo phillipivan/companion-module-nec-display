@@ -6,6 +6,17 @@ module.exports = {
 		let self = this;
 
 		try {
+			// Close connection before another is started (hex protocol allows only one concurrent connection)
+			if (self.socket) {
+				self.socket.destroy();
+				delete self.socket;
+			}
+		}
+		catch(error) {
+			self.log('debug', `Failed to close connection: ${error}`);
+		}
+
+		try {
 			self.log('info', `Opening connection to ${self.config.host}:${self.config.port}`);
 	
 			self.socket = new TCPHelper(self.config.host, self.config.port);
