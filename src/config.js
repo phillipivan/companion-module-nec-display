@@ -49,9 +49,6 @@ module.exports = {
         label: "Polling Rate (ms)",
         width: 6,
         default: 20000,
-        /*  isVisible: (config) => {
-          config.enablePolling;
-        }, */
         isVisibleExpression: `$(options:enablePolling)`,
       },
       {
@@ -61,9 +58,6 @@ module.exports = {
         label: "Information",
         value:
           "Some NEC Displays underperformed in testing when using a polling rate of less than 20,000 ms (20 seconds).",
-        /* isVisible: (config) => {
-          config.enablePolling && config.rate < 20000;
-        }, */
         isVisibleExpression: `$(options:enablePolling) && $(options:rate) < 20000`,
       },
       {
