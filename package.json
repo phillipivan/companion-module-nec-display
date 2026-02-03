@@ -28,5 +28,13 @@
     "yarn": "^4"
   },
   "packageManager": "yarn@4.12.0",
-  "prettier": "@companion-module/tools/.prettierrc.json"
+  "prettier": {
+		"printWidth": 360,
+		"arrowParens": "always",
+		"bracketSpacing": true,
+		"semi": false,
+		"singleQuote": true,
+		"useTabs": true,
+		"endOfLine": "lf"
+	}
 }

@@ -1,5 +1,5 @@
-import { generateEslintConfig } from "@companion-module/tools/eslint/config.mjs";
+import { generateEslintConfig } from '@companion-module/tools/eslint/config.mjs'
 
-const baseConfig = await generateEslintConfig({ enableJest: true });
+const baseConfig = await generateEslintConfig({ enableJest: true })
 
-export default baseConfig;
+export default baseConfig
